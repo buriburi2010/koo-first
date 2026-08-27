@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>화로 로스터스 — 불 위에서 깨어나는 하루</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,900&family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --espresso:#17110D;
+    --roast:#241811;
+    --roast-2:#2E1E14;
+    --ember:#F0641E;
+    --ember-soft:#F58A4B;
+    --crema:#C9A15E;
+    --cream:#F5EBDD;
+    --cream-dim:#B8A895;
+    --sage:#8B9B6A;
+    --line:rgba(245,235,221,0.14);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--espresso);
+    color:var(--cream);
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:300;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  ::selection{background:var(--ember);color:var(--espresso)}
+  a{color:inherit;text-decoration:none}
+  .mono{font-family:'Space Mono',monospace}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 32px}
+
+  /* ---------- eyebrow / labels ---------- */
+  .eyebrow{
+    font-family:'Space Mono',monospace;
+    font-size:12px;letter-spacing:0.22em;text-transform:uppercase;
+    color:var(--ember);display:inline-flex;align-items:center;gap:10px;
+  }
+  .eyebrow::before{content:"";width:22px;height:1px;background:var(--ember)}
+
+  /* ---------- nav ---------- */
+  nav{
+    position:fixed;top:0;left:0;right:0;z-index:50;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:18px 32px;
+    background:rgba(23,17,13,0.72);
+    backdrop-filter:blur(14px);
+    border-bottom:1px solid transparent;
+    transition:border-color .4s,background .4s;
+  }
+  nav.scrolled{border-bottom-color:var(--line)}
+  .brand{display:flex;align-items:center;gap:12px;font-family:'Fraunces',serif;font-weight:600;font-size:20px;letter-spacing:.01em}
+  .brand .flame{width:26px;height:26px;flex:none}
+  .nav-links{display:flex;gap:34px;font-size:14px;letter-spacing:.02em}
+  .nav-links a{position:relative;padding:4px 0;color:var(--cream-dim);transition:color .3s}
+  .nav-links a::after{content:"";position:absolute;left:0;bottom:0;width:0;height:1px;background:var(--ember);transition:width .3s}
+  .nav-links a:hover,.nav-links a:focus-visible{color:var(--cream)}
+  .nav-links a:hover::after,.nav-links a:focus-visible::after{width:100%}
+  .nav-cta{
+    font-size:13px;letter-spacing:.03em;color:var(--cream);
+    border:1px solid var(--line);border-radius:100px;padding:9px 20px;
+    transition:border-color .3s,color .3s,background .3s;
+  }
+  .nav-cta:hover,.nav-cta:focus-visible{border-color:var(--ember);color:var(--ember)}
+  .menu-toggle{display:none}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;padding:150px 0 90px;overflow:hidden}
+  .hero::before{
+    content:"";position:absolute;top:-10%;right:-8%;width:640px;height:640px;
+    background:radial-gradient(circle,rgba(240,100,30,.28),rgba(240,100,30,0) 68%);
+    filter:blur(10px);pointer-events:none;
+  }
+  .hero-grid{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  .hero h1{
+    font-family:'Fraunces',serif;font-weight:400;
+    font-size:clamp(48px,7.2vw,104px);line-height:.98;letter-spacing:-.02em;
+    margin:24px 0 26px;
+  }
+  .hero h1 em{font-style:italic;font-weight:300;color:var(--ember)}
+  .hero h1 .thick{font-weight:900}
+  .hero p.lead{font-size:18px;max-width:34ch;color:var(--cream-dim);margin-bottom:36px}
+  .hero-actions{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+  .btn{
+    font-family:'Space Grotesk',sans-serif;font-size:15px;letter-spacing:.02em;
+    padding:14px 28px;border-radius:100px;cursor:pointer;border:1px solid transparent;
+    display:inline-flex;align-items:center;gap:9px;transition:transform .25s,background .3s,color .3s,border-color .3s;
+  }
+  .btn-primary{background:var(--ember);color:var(--espresso);font-weight:500}
+  .btn-primary:hover,.btn-primary:focus-visible{transform:translateY(-2px);background:var(--ember-soft)}
+  .btn-ghost{border-color:var(--line);color:var(--cream)}
+  .btn-ghost:hover,.btn-ghost:focus-visible{border-color:var(--cream);transform:translateY(-2px)}
+
+  /* ---------- roast curve signature ---------- */
+  .roast-card{
+    position:relative;border:1px solid var(--line);border-radius:20px;
+    background:linear-gradient(160deg,var(--roast-2),var(--roast));
+    padding:26px 26px 20px;box-shadow:0 40px 80px -40px rgba(0,0,0,.7);
+  }
+  .roast-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .roast-head .t{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-dim)}
+  .roast-head .temp{font-family:'Fraunces',serif;font-size:30px;color:var(--ember)}
+  .roast-svg{width:100%;height:auto;display:block}
+  .roast-path{stroke:var(--ember);stroke-width:2.5;fill:none;stroke-linecap:round;
+    stroke-dasharray:1000;stroke-dashoffset:1000;animation:draw 2.6s .3s ease forwards}
+  .roast-fill{fill:url(#emberFill);opacity:0;animation:fadein 1.4s 2s ease forwards}
+  .roast-dot{fill:var(--cream);opacity:0}
+  .roast-dot.d1{animation:pop .4s 1.4s ease forwards}
+  .roast-dot.d2{animation:pop .4s 2.1s ease forwards}
+  .roast-dot.d3{animation:pop .4s 2.7s ease forwards}
+  .roast-marks{font-family:'Space Mono',monospace;fill:var(--cream-dim);font-size:9px;letter-spacing:.08em}
+  .roast-foot{display:flex;justify-content:space-between;margin-top:12px;font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--cream-dim);text-transform:uppercase}
+  @keyframes draw{to{stroke-dashoffset:0}}
+  @keyframes fadein{to{opacity:.16}}
+  @keyframes pop{to{opacity:1}}
+
+  /* ---------- ticker ---------- */
+  .ticker{border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;padding:16px 0;margin-top:70px}
+  .ticker-track{display:flex;gap:56px;white-space:nowrap;width:max-content;animation:scroll 28s linear infinite}
+  .ticker span{font-family:'Fraunces',serif;font-style:italic;font-size:22px;color:var(--cream-dim)}
+  .ticker span b{color:var(--ember);font-style:normal;font-family:'Space Mono',monospace;font-size:13px;letter-spacing:.1em}
+  @keyframes scroll{to{transform:translateX(-50%)}}
+
+  /* ---------- sections ---------- */
+  section{padding:100px 0}
+  .sec-head{max-width:640px;margin-bottom:56px}
+  .sec-head h2{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(32px,4.4vw,52px);line-height:1.05;letter-spacing:-.015em;margin:18px 0 0}
+
+  /* beans */
+  .beans{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .bean{
+    border:1px solid var(--line);border-radius:16px;padding:28px 24px 24px;
+    background:linear-gradient(180deg,rgba(46,30,20,.5),rgba(36,24,17,.3));
+    transition:transform .35s,border-color .35s;position:relative;overflow:hidden;
+  }
+  .bean:hover{transform:translateY(-6px);border-color:rgba(240,100,30,.45)}
+  .bean .num{font-family:'Space Mono',monospace;font-size:11px;color:var(--crema);letter-spacing:.14em}
+  .bean h3{font-family:'Fraunces',serif;font-weight:500;font-size:26px;margin:14px 0 4px;line-height:1.1}
+  .bean .origin{font-size:13px;color:var(--cream-dim);margin-bottom:20px}
+  .roast-meter{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+  .roast-meter .track{flex:1;height:4px;background:var(--line);border-radius:4px;position:relative;overflow:hidden}
+  .roast-meter .fill{position:absolute;left:0;top:0;bottom:0;background:linear-gradient(90deg,var(--crema),var(--ember));border-radius:4px}
+  .roast-meter .lvl{font-family:'Space Mono',monospace;font-size:10px;color:var(--cream-dim);letter-spacing:.08em;white-space:nowrap}
+  .notes{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:22px}
+  .notes span{font-size:12px;padding:5px 12px;border:1px solid var(--line);border-radius:100px;color:var(--cream-dim)}
+  .bean .spec{display:flex;justify-content:space-between;padding-top:16px;border-top:1px solid var(--line);font-family:'Space Mono',monospace;font-size:11px;color:var(--cream-dim)}
+  .bean .spec b{color:var(--cream);font-weight:400;display:block;font-size:13px;margin-top:2px}
+
+  /* menu */
+  .menu-wrap{display:grid;grid-template-columns:1fr 1fr;gap:0 72px}
+  .menu-col h4{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--ember);padding-bottom:16px;border-bottom:1px solid var(--line);margin-bottom:8px}
+  .menu-item{display:flex;align-items:baseline;gap:14px;padding:16px 0;border-bottom:1px solid var(--line)}
+  .menu-item .nm{font-family:'Fraunces',serif;font-size:20px;font-weight:400;white-space:nowrap}
+  .menu-item .ds{font-size:13px;color:var(--cream-dim);flex:1;line-height:1.4}
+  .menu-item .pr{font-family:'Space Mono',monospace;font-size:14px;color:var(--crema);white-space:nowrap}
+  .menu-note{grid-column:1/-1;margin-top:28px;font-size:13px;color:var(--cream-dim);font-style:italic;font-family:'Fraunces',serif}
+
+  /* story */
+  .story{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+  .story-visual{aspect-ratio:4/5;border-radius:20px;position:relative;overflow:hidden;border:1px solid var(--line);
+    background:
+      radial-gradient(circle at 30% 20%,rgba(240,100,30,.45),transparent 45%),
+      radial-gradient(circle at 75% 78%,rgba(201,161,94,.35),transparent 50%),
+      linear-gradient(160deg,var(--roast-2),var(--espresso));}
+  .story-visual .glow{position:absolute;inset:0;display:grid;place-items:center}
+  .story-visual .bignum{font-family:'Fraunces',serif;font-size:clamp(90px,14vw,180px);font-weight:900;color:rgba(245,235,221,.08);line-height:1}
+  .story-visual .cap{position:absolute;left:26px;bottom:24px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.12em;color:var(--cream-dim)}
+  .story-visual .cap b{color:var(--ember)}
+  .story-text h2{font-family:'Fraunces',serif;font-weight:400;font-size:clamp(30px,4vw,46px);line-height:1.08;letter-spacing:-.015em;margin:18px 0 24px}
+  .story-text p{color:var(--cream-dim);margin-bottom:18px;max-width:46ch}
+  .story-text p em{color:var(--cream);font-style:normal}
+  .stat-row{display:flex;gap:40px;margin-top:36px;padding-top:32px;border-top:1px solid var(--line)}
+  .stat b{display:block;font-family:'Fraunces',serif;font-size:38px;color:var(--ember);line-height:1}
+  .stat span{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--cream-dim);text-transform:uppercase}
+
+  /* visit */
+  #visit{background:linear-gradient(180deg,var(--espresso),var(--roast))}
+  .visit-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:56px;align-items:start}
+  .hours-table{width:100%;border-collapse:collapse;margin-top:8px}
+  .hours-table td{padding:15px 0;border-bottom:1px solid var(--line);font-size:15px}
+  .hours-table td:last-child{text-align:right;font-family:'Space Mono',monospace;color:var(--crema);font-size:14px}
+  .hours-table tr td:first-child{color:var(--cream-dim)}
+  .info-block{margin-top:34px}
+  .info-block .lbl{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ember);margin-bottom:8px}
+  .info-block p{font-size:16px;line-height:1.5}
+  .map-card{border:1px solid var(--line);border-radius:20px;overflow:hidden;
+    background:
+      radial-gradient(circle at 60% 40%,rgba(240,100,30,.18),transparent 55%),
+      linear-gradient(160deg,var(--roast-2),var(--espresso));
+    aspect-ratio:1/1.05;position:relative;display:grid;place-items:center;text-align:center;padding:30px}
+  .map-card .pin{width:44px;height:44px;margin-bottom:16px}
+  .map-card h4{font-family:'Fraunces',serif;font-size:24px;font-weight:500;margin-bottom:6px}
+  .map-card p{font-size:13px;color:var(--cream-dim)}
+  .map-lines{position:absolute;inset:0;opacity:.5;pointer-events:none}
+
+  /* footer */
+  footer{border-top:1px solid var(--line);padding:64px 0 40px}
+  .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:40px;margin-bottom:48px}
+  .foot-brand{font-family:'Fraunces',serif;font-size:28px;font-weight:600;margin-bottom:16px;display:flex;align-items:center;gap:12px}
+  .foot-brand .flame{width:28px;height:28px}
+  .foot-col h5{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--cream-dim);margin-bottom:16px}
+  .foot-col a{display:block;color:var(--cream);font-size:14px;padding:6px 0;transition:color .3s}
+  .foot-col a:hover{color:var(--ember)}
+  .foot-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:28px;border-top:1px solid var(--line);font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--cream-dim);flex-wrap:wrap;gap:12px}
+  .foot-desc{color:var(--cream-dim);font-size:14px;max-width:34ch;line-height:1.6}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .8s ease,transform .8s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ---------- responsive ---------- */
+  @media(max-width:900px){
+    .nav-links,.nav-cta{display:none}
+    .hero-grid,.menu-wrap,.story,.visit-grid,.foot-grid{grid-template-columns:1fr}
+    .hero{padding:130px 0 70px}
+    .roast-card{margin-top:10px}
+    .beans{grid-template-columns:1fr}
+    .story{gap:40px}
+    .story-visual{aspect-ratio:16/10}
+    .foot-grid{gap:32px}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+    .roast-path{stroke-dashoffset:0}
+    .roast-fill,.roast-dot{opacity:1}
+    .reveal{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+
+<!-- flame icon reused -->
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="flame" viewBox="0 0 24 24">
+    <path d="M12 2c1 3.5-2 4.5-2 7 0 1.4 1 2.3 2 2.3s2-1 2-2.5c1.5 1.2 3 3.4 3 6.2A5 5 0 0 1 12 20a5 5 0 0 1-5-5c0-4 3-6 5-8z" fill="var(--ember)"/>
+    <path d="M12 20a5 5 0 0 0 5-5c0-1.2-.3-2.2-.7-3-.3 3-2.3 4-4.3 4-1.4 0-2.4-.9-2.4-2.2 0-.5.1-1 .3-1.4C8.5 13.4 8 14.6 8 16a4 4 0 0 0 4 4z" fill="var(--crema)" opacity=".6"/>
+  </symbol>
+</svg>
+
+<nav id="nav">
+  <a href="#top" class="brand"><svg class="flame"><use href="#flame"/></svg>화로 로스터스</a>
+  <div class="nav-links">
+    <a href="#beans">오늘의 원두</a>
+    <a href="#menu">메뉴</a>
+    <a href="#story">로스팅</a>
+    <a href="#visit">찾아오는 길</a>
+  </div>
+  <a href="#visit" class="nav-cta">방문 예약</a>
+</nav>
+
+<header class="hero" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">Since 2019 · 매일 아침 자가 배전</span>
+      <h1>불 위에서<br>깨어나는 <em>하루</em>,<br><span class="thick">화로</span>.</h1>
+      <p class="lead">숯불처럼 은근한 열로 볶아낸 싱글 오리진. 매일 아침 볶고, 그날 안에 내려 드립니다.</p>
+      <div class="hero-actions">
+        <a href="#beans" class="btn btn-primary">오늘의 원두 보기 →</a>
+        <a href="#visit" class="btn btn-ghost">매장 정보</a>
+      </div>
+    </div>
+
+    <!-- SIGNATURE: roast curve -->
+    <div class="roast-card reveal">
+      <div class="roast-head">
+        <span class="t">오늘의 로스팅 프로파일 · 예가체프</span>
+        <span class="temp">214°C</span>
+      </div>
+      <svg class="roast-svg" viewBox="0 0 400 210" role="img" aria-label="로스팅 온도 곡선 그래프">
+        <defs>
+          <linearGradient id="emberFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#F0641E"/>
+            <stop offset="1" stop-color="#F0641E" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <!-- gridlines -->
+        <g stroke="var(--line)" stroke-width="1">
+          <line x1="0" y1="40" x2="400" y2="40"/>
+          <line x1="0" y1="90" x2="400" y2="90"/>
+          <line x1="0" y1="140" x2="400" y2="140"/>
+        </g>
+        <!-- fill under curve -->
+        <path class="roast-fill" d="M0,175 C55,178 70,150 95,120 C130,80 190,60 260,48 C310,40 360,36 400,34 L400,190 L0,190 Z"/>
+        <!-- the curve -->
+        <path class="roast-path" d="M0,175 C55,178 70,150 95,120 C130,80 190,60 260,48 C310,40 360,36 400,34"/>
+        <!-- event dots -->
+        <circle class="roast-dot d1" cx="95" cy="120" r="4.5"/>
+        <circle class="roast-dot d2" cx="220" cy="55" r="4.5"/>
+        <circle class="roast-dot d3" cx="360" cy="36" r="4.5"/>
+        <!-- marks -->
+        <text class="roast-marks" x="70" y="140">터닝포인트</text>
+        <text class="roast-marks" x="196" y="46">첫 크랙</text>
+        <text class="roast-marks" x="318" y="27">배출</text>
+      </svg>
+      <div class="roast-foot">
+        <span>투입 00:00</span>
+        <span>·</span>
+        <span>총 11:20</span>
+        <span>·</span>
+        <span>라이트-미디엄</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ticker -->
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track">
+      <span>싱글 오리진 <b>SINGLE ORIGIN</b></span>
+      <span>당일 배전 <b>ROASTED DAILY</b></span>
+      <span>핸드드립 <b>POUR OVER</b></span>
+      <span>커핑 노트 <b>CUPPING NOTES</b></span>
+      <span>화로 로스터스 <b>HWARO</b></span>
+      <span>싱글 오리진 <b>SINGLE ORIGIN</b></span>
+      <span>당일 배전 <b>ROASTED DAILY</b></span>
+      <span>핸드드립 <b>POUR OVER</b></span>
+      <span>커핑 노트 <b>CUPPING NOTES</b></span>
+      <span>화로 로스터스 <b>HWARO</b></span>
+    </div>
+  </div>
+</header>
+
+<!-- BEANS -->
+<section id="beans" class="wrap">
+  <div class="sec-head reveal">
+    <span class="eyebrow">오늘의 원두 · 3종</span>
+    <h2>불의 세기를 원두마다<br>다르게 다룹니다.</h2>
+  </div>
+  <div class="beans">
+    <div class="bean reveal">
+      <span class="num">01 / 워시드</span>
+      <h3>예가체프 코체레</h3>
+      <p class="origin">에티오피아 · 고도 2,050m</p>
+      <div class="roast-meter"><div class="track"><div class="fill" style="width:32%"></div></div><span class="lvl">LIGHT</span></div>
+      <div class="notes"><span>자스민</span><span>베르가못</span><span>꿀</span></div>
+      <div class="spec"><span>프로세스<b>Washed</b></span><span>추천<b>핸드드립</b></span></div>
+    </div>
+    <div class="bean reveal">
+      <span class="num">02 / 워시드</span>
+      <h3>핑크 부르봉</h3>
+      <p class="origin">콜롬비아 우일라 · 고도 1,750m</p>
+      <div class="roast-meter"><div class="track"><div class="fill" style="width:56%"></div></div><span class="lvl">MEDIUM</span></div>
+      <div class="notes"><span>청포도</span><span>복숭아</span><span>흑설탕</span></div>
+      <div class="spec"><span>프로세스<b>Washed</b></span><span>추천<b>드립 · 라떼</b></span></div>
+    </div>
+    <div class="bean reveal">
+      <span class="num">03 / 내추럴</span>
+      <h3>안티구아 다크</h3>
+      <p class="origin">과테말라 · 고도 1,600m</p>
+      <div class="roast-meter"><div class="track"><div class="fill" style="width:82%"></div></div><span class="lvl">MED-DARK</span></div>
+      <div class="notes"><span>다크초콜릿</span><span>헤이즐넛</span><span>오렌지필</span></div>
+      <div class="spec"><span>프로세스<b>Natural</b></span><span>추천<b>에스프레소</b></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- MENU -->
+<section id="menu" class="wrap">
+  <div class="sec-head reveal">
+    <span class="eyebrow">메뉴 · Drinks</span>
+    <h2>한 잔의 온도까지 맞춥니다.</h2>
+  </div>
+  <div class="menu-wrap reveal">
+    <div class="menu-col">
+      <h4>Espresso Bar</h4>
+      <div class="menu-item"><span class="nm">에스프레소</span><span class="ds">그날의 블렌드, 리스트레토</span><span class="pr">₩4,000</span></div>
+      <div class="menu-item"><span class="nm">아메리카노</span><span class="ds">뜨거운 물에 천천히</span><span class="pr">₩4,500</span></div>
+      <div class="menu-item"><span class="nm">플랫 화이트</span><span class="ds">더블 샷 · 벨벳 폼</span><span class="pr">₩5,500</span></div>
+      <div class="menu-item"><span class="nm">카페 라떼</span><span class="ds">부드러운 스팀 밀크</span><span class="pr">₩5,500</span></div>
+    </div>
+    <div class="menu-col">
+      <h4>Filter &amp; Cold</h4>
+      <div class="menu-item"><span class="nm">핸드드립</span><span class="ds">오늘의 싱글 오리진 택 1</span><span class="pr">₩6,500</span></div>
+      <div class="menu-item"><span class="nm">콜드브루</span><span class="ds">14시간 저온 추출</span><span class="pr">₩6,000</span></div>
+      <div class="menu-item"><span class="nm">아인슈페너</span><span class="ds">진한 크림, 콜드브루 베이스</span><span class="pr">₩6,500</span></div>
+      <div class="menu-item"><span class="nm">원두 250g</span><span class="ds">당일 배전, 봉투 포장</span><span class="pr">₩18,000~</span></div>
+    </div>
+    <p class="menu-note">핸드드립은 매일 소진 시 마감됩니다. 그날의 원두는 매장 칠판에서 확인하세요.</p>
+  </div>
+</section>
+
+<!-- STORY -->
+<section id="story" class="wrap">
+  <div class="story">
+    <div class="story-visual reveal">
+      <div class="glow"><span class="bignum">火</span></div>
+      <span class="cap"><b>배전실</b> · 매일 07:00, 로스팅 시작</span>
+    </div>
+    <div class="story-text reveal">
+      <span class="eyebrow">우리의 방식</span>
+      <h2>급하게 태우지 않고,<br>은근하게 깨웁니다.</h2>
+      <p>화로는 <em>화롯불</em>에서 이름을 가져왔습니다. 센 불로 겉만 그을리는 대신, 열을 천천히 밀어 넣어 원두 속까지 고르게 익힙니다.</p>
+      <p>매일 아침 그날 팔 만큼만 볶습니다. 어제 볶은 원두는 팔지 않습니다. <em>신선함은 타협의 대상이 아니니까요.</em></p>
+      <div class="stat-row">
+        <div class="stat"><b>07:00</b><span>매일 로스팅</span></div>
+        <div class="stat"><b>48h</b><span>이내 소진 원칙</span></div>
+        <div class="stat"><b>11종</b><span>연간 산지</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISIT -->
+<section id="visit">
+  <div class="wrap visit-grid">
+    <div class="reveal">
+      <span class="eyebrow">찾아오는 길 · Visit</span>
+      <h2 style="font-family:'Fraunces',serif;font-weight:400;font-size:clamp(30px,4vw,46px);line-height:1.08;letter-spacing:-.015em;margin:18px 0 30px">화로에 앉아<br>한 잔 하고 가세요.</h2>
+      <table class="hours-table">
+        <tr><td>월요일</td><td>로스팅 데이 · 12:00–22:00</td></tr>
+        <tr><td>화–금</td><td>08:00–22:00</td></tr>
+        <tr><td>토·일</td><td>10:00–23:00</td></tr>
+      </table>
+      <div class="info-block">
+        <div class="lbl">주소</div>
+        <p>경기 고양시 일산동구 무슨로 24, 1층<br><span style="color:var(--cream-dim);font-size:14px">지하철 3호선 정발산역 3번 출구 도보 5분</span></p>
+      </div>
+      <div class="info-block">
+        <div class="lbl">연락 · 예약</div>
+        <p>031-000-0000 · @hwaro.roasters</p>
+      </div>
+    </div>
+    <div class="map-card reveal">
+      <svg class="map-lines" viewBox="0 0 200 200" preserveAspectRatio="none">
+        <g stroke="var(--line)" stroke-width="1" fill="none">
+          <path d="M0,60 H200 M0,130 H200 M70,0 V200 M140,0 V200"/>
+          <path d="M0,60 L70,130 M140,0 L200,60" stroke="rgba(240,100,30,.25)"/>
+        </g>
+      </svg>
+      <svg class="pin" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7z" fill="none" stroke="var(--ember)" stroke-width="1.6"/><circle cx="12" cy="9" r="2.6" fill="var(--ember)"/></svg>
+      <h4>정발산역 인근</h4>
+      <p>주차 2대 · 인근 공영주차장 이용 가능</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <div class="foot-brand"><svg class="flame"><use href="#flame"/></svg>화로 로스터스</div>
+        <p class="foot-desc">불로 깨우고, 그날 안에 내리는 스페셜티 커피. 매일 아침의 로스팅을 믿습니다.</p>
+      </div>
+      <div class="foot-col">
+        <h5>둘러보기</h5>
+        <a href="#beans">오늘의 원두</a>
+        <a href="#menu">메뉴</a>
+        <a href="#story">로스팅</a>
+        <a href="#visit">찾아오는 길</a>
+      </div>
+      <div class="foot-col">
+        <h5>연결</h5>
+        <a href="#">인스타그램</a>
+        <a href="#">원두 정기구독</a>
+        <a href="#">도매 문의</a>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 HWARO ROASTERS</span>
+      <span>ROASTED WITH FIRE · 고양</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // nav border on scroll
+  const nav = document.getElementById('nav');
+  addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', scrollY > 20);
+  });
+  // scroll reveal
+  const io = new IntersectionObserver((es) => {
+    es.forEach(e => { if (e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>
